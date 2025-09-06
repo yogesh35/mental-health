@@ -1,0 +1,67 @@
+const express = require('express');
+const cors = require('cors');
+const axios = require('axios');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// API endpoint to fetch all users from Descope
+app.get('/api/users', async (req, res) => {
+  try {
+    console.log('Fetching users from Descope...');
+    
+    const response = await axios.post(
+      `https://api.descope.com/v1/mgmt/user/search`,
+      {
+        limit: 100,
+        page: 0
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.DESCOPE_PROJECT_ID}:${process.env.DESCOPE_MANAGEMENT_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log('Descope API response:', response.data);
+    
+    if (response.data && response.data.users) {
+      res.json({
+        success: true,
+        users: response.data.users,
+        total: response.data.users.length
+      });
+    } else {
+      res.json({
+        success: true,
+        users: [],
+        total: 0
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching users from Descope:', error.response?.data || error.message);
+    
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch users',
+      details: error.response?.data || error.message
+    });
+  }
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Backend server is running' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Backend server is running on http://localhost:${PORT}`);
+  console.log(`Project ID: ${process.env.DESCOPE_PROJECT_ID}`);
+  console.log(`Management Key: ${process.env.DESCOPE_MANAGEMENT_KEY ? 'Set' : 'Not set'}`);
+});
