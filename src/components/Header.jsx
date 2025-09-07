@@ -12,9 +12,9 @@ const Header = () => {
 
   return (
     <header className="header">
-      <h1>Photo Gallery</h1>
+      <h1>Mental Health Support</h1>
       <nav className="nav-links">
-        <Link to="/dashboard" className="nav-link">Gallery</Link>
+        <Link to="/dashboard" className="nav-link">Dashboard</Link>
         <Link to="/users" className="nav-link">Users</Link>
         <span className="nav-link">Hello, {user?.name || user?.email || 'User'}</span>
         <button onClick={handleLogout} className="logout-btn">

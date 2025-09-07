@@ -1,179 +1,310 @@
 import React, { useState, useEffect } from 'react';
+import { useUser } from '@descope/react-sdk';
 
 const User = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user } = useUser();
+  const [stressTestHistory, setStressTestHistory] = useState([]);
+  const [profileData, setProfileData] = useState({
+    studentId: '',
+    program: '',
+    year: '',
+    emergencyContact: '',
+    preferences: {
+      notifications: true,
+      reminders: true,
+      anonymousData: false
+    }
+  });
 
   useEffect(() => {
-    fetchAllUsers();
-  }, []);
+    const loadUserData = () => {
+      try {
+        // Load student profile from localStorage
+        const savedProfile = localStorage.getItem('studentProfile');
+        if (savedProfile) {
+          setProfileData(prevData => ({
+            ...prevData,
+            ...JSON.parse(savedProfile)
+          }));
+        }
 
-  const fetchAllUsers = async () => {
-    try {
-      setLoading(true);
-      
-      // Call our backend API to fetch real users from Descope
-      const response = await fetch('http://localhost:3001/api/users');
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch users: ${response.status}`);
+        // Load stress test history from localStorage
+        const savedHistory = localStorage.getItem('stressTestHistory');
+        if (savedHistory) {
+          setStressTestHistory(JSON.parse(savedHistory));
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
       }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setUsers(data.users || []);
-        console.log('Fetched users:', data.users);
-      } else {
-        throw new Error(data.error || 'Failed to fetch users');
-      }
-      
-    } catch (err) {
-      console.error('Error fetching users:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    };
+
+    if (user?.userId) {
+      loadUserData();
     }
+  }, [user]);
+
+  const handleProfileUpdate = (field, value) => {
+    const updatedProfile = { ...profileData, [field]: value };
+    setProfileData(updatedProfile);
+    
+    // Save to localStorage
+    localStorage.setItem('studentProfile', JSON.stringify(updatedProfile));
+  };
+
+  const handlePreferenceChange = (preference, value) => {
+    const updatedPreferences = { ...profileData.preferences, [preference]: value };
+    const updatedProfile = { ...profileData, preferences: updatedPreferences };
+    setProfileData(updatedProfile);
+    
+    // Save to localStorage
+    localStorage.setItem('studentProfile', JSON.stringify(updatedProfile));
+  };
+
+  const getStressLevel = (score) => {
+    if (score <= 5) return { level: 'Low', color: 'green', bgColor: 'bg-green-100', textColor: 'text-green-800' };
+    if (score <= 7) return { level: 'Moderate', color: 'yellow', bgColor: 'bg-yellow-100', textColor: 'text-yellow-800' };
+    return { level: 'High', color: 'red', bgColor: 'bg-red-100', textColor: 'text-red-800' };
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading users...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
-          <div className="text-red-600 mb-4">
-            <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z"></path>
-            </svg>
-          </div>
-          <p className="text-red-800 font-semibold mb-2">Error Loading Users</p>
-          <p className="text-red-600">{error}</p>
-          <button 
-            onClick={fetchAllUsers}
-            className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">
-          Registered Users
+          Student Profile & Health Records
         </h1>
         <p className="text-lg text-gray-600">
-          All users who have signed up for your Photo Gallery app
+          Manage your personal information and view your mental health assessment history
         </p>
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-sm text-gray-500">
-            Total users: {users.length}
-          </span>
-          <button 
-            onClick={fetchAllUsers}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-          >
-            Refresh
-          </button>
-        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {users.map((userData, index) => (
-          <div key={userData.userId || index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-            <div className="text-center mb-4">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-3 flex items-center justify-center">
-                <span className="text-xl font-bold text-white">
-                  {userData?.name ? userData.name.charAt(0).toUpperCase() : 
-                   userData?.email ? userData.email.charAt(0).toUpperCase() : 
-                   userData?.loginIds && userData.loginIds.length > 0 ? userData.loginIds[0].charAt(0).toUpperCase() : 'U'}
-                </span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Profile Information */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Basic Information */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+              <span className="text-2xl mr-3">👤</span>
+              Personal Information
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  value={user?.name || user?.givenName || ''}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Managed by your authentication provider</p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                {userData?.name || userData?.givenName || 'No name provided'}
-              </h3>
-              <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                {userData?.status === 'enabled' ? 'Active' : userData?.status || 'Unknown'}
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <input
+                  type="email"
+                  value={user?.email || ''}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Managed by your authentication provider</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
+                <input
+                  type="text"
+                  value={profileData.studentId}
+                  onChange={(e) => handleProfileUpdate('studentId', e.target.value)}
+                  placeholder="Enter your student ID"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Academic Program</label>
+                <select
+                  value={profileData.program}
+                  onChange={(e) => handleProfileUpdate('program', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select your program</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Psychology">Psychology</option>
+                  <option value="Business Administration">Business Administration</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Medicine">Medicine</option>
+                  <option value="Education">Education</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Academic Year</label>
+                <select
+                  value={profileData.year}
+                  onChange={(e) => handleProfileUpdate('year', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select year</option>
+                  <option value="1st Year">1st Year</option>
+                  <option value="2nd Year">2nd Year</option>
+                  <option value="3rd Year">3rd Year</option>
+                  <option value="4th Year">4th Year</option>
+                  <option value="Graduate">Graduate</option>
+                  <option value="PhD">PhD</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Emergency Contact</label>
+                <input
+                  type="text"
+                  value={profileData.emergencyContact}
+                  onChange={(e) => handleProfileUpdate('emergencyContact', e.target.value)}
+                  placeholder="Name and phone number"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
               </div>
             </div>
+          </div>
 
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">Email Address</label>
-                <p className="text-sm text-gray-900 break-all">
-                  {userData?.email || (userData?.loginIds && userData.loginIds.length > 0 ? userData.loginIds[0] : 'Not provided')}
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">User ID</label>
-                <p className="text-xs text-gray-600 font-mono break-all">
-                  {userData?.userId || 'N/A'}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+          {/* Privacy & Preferences */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+              <span className="text-2xl mr-3">⚙️</span>
+              Privacy & Preferences
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-1">Created</label>
-                  <p className="text-xs text-gray-900">
-                    {formatDate(userData?.createdTime)}
-                  </p>
+                  <h3 className="text-sm font-medium text-gray-900">Email Notifications</h3>
+                  <p className="text-sm text-gray-500">Receive reminders and updates via email</p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-1">Last Login</label>
-                  <p className="text-xs text-gray-900">
-                    {formatDate(userData?.lastLoginTime)}
-                  </p>
-                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={profileData.preferences.notifications}
+                    onChange={(e) => handlePreferenceChange('notifications', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
               </div>
 
-              {userData?.phone && (
+              <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-1">Phone</label>
-                  <p className="text-sm text-gray-900">{userData.phone}</p>
+                  <h3 className="text-sm font-medium text-gray-900">Assessment Reminders</h3>
+                  <p className="text-sm text-gray-500">Get reminders to take regular mental health assessments</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={profileData.preferences.reminders}
+                    onChange={(e) => handlePreferenceChange('reminders', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-900">Anonymous Data Sharing</h3>
+                  <p className="text-sm text-gray-500">Help improve mental health services with anonymous data</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={profileData.preferences.anonymousData}
+                    onChange={(e) => handlePreferenceChange('anonymousData', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mental Health History */}
+        <div className="space-y-6">
+          {/* Quick Stats */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+              <span className="text-2xl mr-3">📊</span>
+              Mental Health Summary
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">{stressTestHistory.length}</div>
+                <div className="text-sm text-gray-600">Assessments Completed</div>
+              </div>
+              
+              {stressTestHistory.length > 0 && (
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-sm text-gray-600">Last Assessment</div>
+                  <div className="font-medium text-gray-900">
+                    {formatDate(stressTestHistory[stressTestHistory.length - 1].date)}
+                  </div>
+                  <div className={`inline-flex px-2 py-1 rounded-full text-xs font-medium mt-1 ${getStressLevel(stressTestHistory[stressTestHistory.length - 1].score).bgColor} ${getStressLevel(stressTestHistory[stressTestHistory.length - 1].score).textColor}`}>
+                    {getStressLevel(stressTestHistory[stressTestHistory.length - 1].score).level} Stress
+                  </div>
                 </div>
               )}
             </div>
           </div>
-        ))}
-      </div>
 
-      {users.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
-            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-            </svg>
+          {/* Assessment History */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+              <span className="text-2xl mr-3">📈</span>
+              Assessment History
+            </h2>
+            
+            {stressTestHistory.length > 0 ? (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {stressTestHistory.slice().reverse().map((test, index) => {
+                  const stressLevel = getStressLevel(test.score);
+                  return (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {formatDate(test.date)}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Score: {test.score}/9
+                        </div>
+                      </div>
+                      <div className={`px-2 py-1 rounded-full text-xs font-medium ${stressLevel.bgColor} ${stressLevel.textColor}`}>
+                        {stressLevel.level}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <div className="text-4xl mb-2">📋</div>
+                <p className="text-sm">No assessments taken yet</p>
+                <p className="text-xs">Take your first mental health assessment to see your history here</p>
+              </div>
+            )}
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-          <p className="text-gray-500">No users have registered for your application yet.</p>
         </div>
-      )}
+      </div>
     </div>
   );
 };

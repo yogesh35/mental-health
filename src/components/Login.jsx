@@ -32,7 +32,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2>Welcome to Photo Gallery</h2>
+        <h2>Welcome to Mental Health Support System</h2>
         
         {!showFallback ? (
           <div>
@@ -73,7 +73,7 @@ const Login = () => {
                 fontSize: '16px'
               }}
             >
-              Continue to Gallery
+              Continue to Dashboard
             </button>
           </div>
         )}
