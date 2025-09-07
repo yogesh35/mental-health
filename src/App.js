@@ -130,6 +130,9 @@ function App() {
       projectId={projectId}
       persistTokens={true}
       autoRefresh={true}
+      theme="light"
+      redirectUrl={window.location.origin + '/dashboard'}
+      locale="en"
     >
       <Router>
         <AppContent />

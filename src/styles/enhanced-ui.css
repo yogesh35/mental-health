@@ -52,6 +52,8 @@
 /* Enhanced Descope Authentication Styles */
 .descope-auth-container {
   position: relative;
+  width: 100%;
+  min-height: 400px;
 }
 
 /* Override Descope default styles with custom theming */
@@ -59,6 +61,79 @@
   border-radius: 16px !important;
   border: none !important;
   box-shadow: none !important;
+  width: 100% !important;
+  min-height: 400px !important;
+}
+
+/* Mobile-specific fixes for Descope */
+@media (max-width: 768px) {
+  .descope-auth-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .descope-auth-container iframe {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 450px !important;
+    height: auto !important;
+    transform: scale(1) !important;
+    transform-origin: top left !important;
+  }
+  
+  /* Enhanced mobile auth container */
+  .mobile-auth {
+    position: relative;
+    overflow: visible !important;
+  }
+  
+  .mobile-auth iframe {
+    border-radius: 12px !important;
+    min-height: 500px !important;
+  }
+  
+  /* Ensure touch events work properly */
+  .descope-auth-container * {
+    touch-action: manipulation !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+  }
+  
+  /* Fix input focus issues on mobile */
+  .descope-auth-container input,
+  .descope-auth-container button {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    border-radius: 8px !important;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+}
+
+/* Prevent horizontal scrolling on mobile */
+@media (max-width: 480px) {
+  .descope-auth-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  
+  .descope-auth-container iframe {
+    min-height: 500px !important;
+  }
+}
+
+/* Fix for iOS Safari specific issues */
+@supports (-webkit-touch-callout: none) {
+  .descope-auth-container {
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .descope-auth-container iframe {
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    transform: translate3d(0, 0, 0) !important;
+  }
 }
 
 /* Custom loading states */
