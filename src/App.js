@@ -3,11 +3,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { AuthProvider, useSession } from '@descope/react-sdk';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
+import RoleSelection from './pages/RoleSelection';
 import Dashboard from './pages/Dashboard';
 import User from './pages/User';
 import TestPage from './pages/TestPage';
 import ChatBot from './ChatBot';
 import Navbar from './components/Navbar';
+import './styles/enhanced-ui.css';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useSession();
@@ -16,7 +18,7 @@ const ProtectedRoute = ({ children }) => {
 
 const AppContent = memo(() => {
   const location = useLocation();
-  const showNavbar = location.pathname !== '/' && location.pathname !== '/auth';
+  const showNavbar = location.pathname !== '/' && location.pathname !== '/auth' && location.pathname !== '/role-selection';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -26,6 +28,7 @@ const AppContent = memo(() => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/role-selection" element={<RoleSelection />} />
             <Route 
               path="/dashboard" 
               element={
@@ -64,6 +67,7 @@ const AppContent = memo(() => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/role-selection" element={<RoleSelection />} />
           <Route 
             path="/dashboard" 
             element={
