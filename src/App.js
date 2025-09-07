@@ -131,7 +131,6 @@ function App() {
       persistTokens={true}
       autoRefresh={true}
       theme="light"
-      redirectUrl={window.location.origin + '/dashboard'}
       locale="en"
     >
       <Router>
