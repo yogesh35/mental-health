@@ -128,7 +128,7 @@ const Dashboard = () => {
               <div className="space-y-2">
                 <p className="text-gray-500">No assessment taken yet</p>
                 <button 
-                  onClick={() => navigate('/mental-health-test')}
+                  onClick={() => navigate('/assessments')}
                   className="text-blue-600 hover:text-blue-800 font-semibold text-sm flex items-center space-x-1"
                 >
                   <span>Take your first assessment</span>
@@ -202,13 +202,13 @@ const Dashboard = () => {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
             <div className="relative z-10">
               <div className="text-5xl mb-6 group-hover:animate-bounce">🧠</div>
-              <h3 className="text-2xl font-bold mb-3">Mental Health Assessment</h3>
-              <p className="text-blue-100 mb-6 leading-relaxed">Take a comprehensive stress and wellbeing assessment to understand your current mental state and get personalized recommendations</p>
+              <h3 className="text-2xl font-bold mb-3">Mental Health Assessments</h3>
+              <p className="text-blue-100 mb-6 leading-relaxed">Take evidence-based screening assessments (PHQ-9, GAD-7, GHQ-12) to understand your mental health and get personalized recommendations</p>
               <button
-                onClick={() => navigate('/mental-health-test')}
+                onClick={() => navigate('/assessments')}
                 className="bg-white text-blue-600 px-6 py-3 rounded-full font-bold hover:bg-gray-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2"
               >
-                <span>Take Assessment</span>
+                <span>Take Assessments</span>
                 <span className="text-lg">📝</span>
               </button>
             </div>

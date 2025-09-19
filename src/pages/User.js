@@ -62,9 +62,35 @@ const User = () => {
     localStorage.setItem('studentProfile', JSON.stringify(updatedProfile));
   };
 
-  const getStressLevel = (score) => {
-    if (score <= 5) return { level: 'Low', color: 'green', bgColor: 'bg-green-100', textColor: 'text-green-800' };
-    if (score <= 7) return { level: 'Moderate', color: 'yellow', bgColor: 'bg-yellow-100', textColor: 'text-yellow-800' };
+  const getStressLevel = (score, maxScore = 27, type = 'PHQ9') => {
+    // Calculate percentage based on assessment type
+    let percentage = (score / maxScore) * 100;
+    
+    // Determine level based on assessment type and score
+    if (type === 'PHQ9') {
+      // PHQ-9 scoring: 0-4 minimal, 5-9 mild, 10-14 moderate, 15-19 moderately severe, 20-27 severe
+      if (score <= 4) return { level: 'Minimal', color: 'green', bgColor: 'bg-green-100', textColor: 'text-green-800' };
+      if (score <= 9) return { level: 'Mild', color: 'yellow', bgColor: 'bg-yellow-100', textColor: 'text-yellow-800' };
+      if (score <= 14) return { level: 'Moderate', color: 'orange', bgColor: 'bg-orange-100', textColor: 'text-orange-800' };
+      if (score <= 19) return { level: 'Moderately Severe', color: 'red', bgColor: 'bg-red-100', textColor: 'text-red-800' };
+      return { level: 'Severe', color: 'red', bgColor: 'bg-red-200', textColor: 'text-red-900' };
+    } else if (type === 'GAD7') {
+      // GAD-7 scoring: 0-4 minimal, 5-9 mild, 10-14 moderate, 15-21 severe
+      if (score <= 4) return { level: 'Minimal', color: 'green', bgColor: 'bg-green-100', textColor: 'text-green-800' };
+      if (score <= 9) return { level: 'Mild', color: 'yellow', bgColor: 'bg-yellow-100', textColor: 'text-yellow-800' };
+      if (score <= 14) return { level: 'Moderate', color: 'orange', bgColor: 'bg-orange-100', textColor: 'text-orange-800' };
+      return { level: 'Severe', color: 'red', bgColor: 'bg-red-100', textColor: 'text-red-800' };
+    } else if (type === 'GHQ12') {
+      // GHQ-12 scoring: 0-11 no distress, 12-15 mild, 16-20 moderate, 21+ severe
+      if (score <= 11) return { level: 'No Distress', color: 'green', bgColor: 'bg-green-100', textColor: 'text-green-800' };
+      if (score <= 15) return { level: 'Mild', color: 'yellow', bgColor: 'bg-yellow-100', textColor: 'text-yellow-800' };
+      if (score <= 20) return { level: 'Moderate', color: 'orange', bgColor: 'bg-orange-100', textColor: 'text-orange-800' };
+      return { level: 'Severe', color: 'red', bgColor: 'bg-red-100', textColor: 'text-red-800' };
+    }
+    
+    // Fallback for unknown types
+    if (percentage <= 20) return { level: 'Low', color: 'green', bgColor: 'bg-green-100', textColor: 'text-green-800' };
+    if (percentage <= 60) return { level: 'Moderate', color: 'yellow', bgColor: 'bg-yellow-100', textColor: 'text-yellow-800' };
     return { level: 'High', color: 'red', bgColor: 'bg-red-100', textColor: 'text-red-800' };
   };
 
@@ -308,8 +334,23 @@ const User = () => {
                     <div className="text-lg font-bold text-gray-900 mb-2">
                       {formatDate(stressTestHistory[stressTestHistory.length - 1].date)}
                     </div>
-                    <div className={`inline-flex px-4 py-2 rounded-full text-sm font-bold shadow-lg ${getStressLevel(stressTestHistory[stressTestHistory.length - 1].score).bgColor} ${getStressLevel(stressTestHistory[stressTestHistory.length - 1].score).textColor}`}>
-                      {getStressLevel(stressTestHistory[stressTestHistory.length - 1].score).level} Stress Level
+                    <div className="text-xs text-gray-500 mb-2">
+                      {stressTestHistory[stressTestHistory.length - 1].type} Assessment
+                    </div>
+                    <div className={`inline-flex px-4 py-2 rounded-full text-sm font-bold shadow-lg ${getStressLevel(
+                      stressTestHistory[stressTestHistory.length - 1].score,
+                      stressTestHistory[stressTestHistory.length - 1].maxScore,
+                      stressTestHistory[stressTestHistory.length - 1].type
+                    ).bgColor} ${getStressLevel(
+                      stressTestHistory[stressTestHistory.length - 1].score,
+                      stressTestHistory[stressTestHistory.length - 1].maxScore,
+                      stressTestHistory[stressTestHistory.length - 1].type
+                    ).textColor}`}>
+                      {getStressLevel(
+                        stressTestHistory[stressTestHistory.length - 1].score,
+                        stressTestHistory[stressTestHistory.length - 1].maxScore,
+                        stressTestHistory[stressTestHistory.length - 1].type
+                      ).level}
                     </div>
                   </div>
                 )}
@@ -328,19 +369,24 @@ const User = () => {
               {stressTestHistory.length > 0 ? (
                 <div className="space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
                   {stressTestHistory.slice().reverse().map((test, index) => {
-                    const stressLevel = getStressLevel(test.score);
+                    const stressLevel = getStressLevel(test.score, test.maxScore, test.type);
                     return (
                       <div key={index} className="group flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all duration-300">
                         <div className="flex items-center space-x-4">
                           <div className="w-10 h-10 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center">
-                            <span className="text-white text-sm font-bold">📝</span>
+                            <span className="text-white text-sm font-bold">
+                              {test.type === 'PHQ9' ? '🧠' : test.type === 'GAD7' ? '�' : '🌟'}
+                            </span>
                           </div>
                           <div>
                             <div className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                              {formatDate(test.date)}
+                              {test.type} Assessment
                             </div>
                             <div className="text-xs text-gray-500 font-semibold">
-                              Score: {test.score}/9 • {new Date(test.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                              {formatDate(test.date)}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              Score: {test.score}/{test.maxScore}
                             </div>
                           </div>
                         </div>
@@ -357,7 +403,7 @@ const User = () => {
                   <h3 className="text-lg font-bold text-gray-700 mb-2">No assessments yet</h3>
                   <p className="text-sm text-gray-600 mb-4">Take your first mental health assessment to start tracking your wellness journey</p>
                   <button 
-                    onClick={() => navigate('/mental-health-test')}
+                    onClick={() => navigate('/assessments')}
                     className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-full font-bold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
                     Take First Assessment 🚀

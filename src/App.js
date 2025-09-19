@@ -1,12 +1,16 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useSession } from '@descope/react-sdk';
+import { getDescopeConfig, logDescopeStatus } from './config/descopeConfig';
+import { runDescopeDiagnostics } from './utils/descopeDiagnostics';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
 import RoleSelection from './pages/RoleSelection';
 import Dashboard from './pages/Dashboard';
 import User from './pages/User';
 import TestPage from './pages/TestPage';
+import MentalHealthAssessments from './pages/MentalHealthAssessments';
+import CounselorDashboard from './pages/CounselorDashboard';
 import ChatBot from './ChatBot';
 import Navbar from './components/Navbar';
 import './styles/enhanced-ui.css';
@@ -54,6 +58,22 @@ const AppContent = memo(() => {
               } 
             />
             <Route 
+              path="/assessments" 
+              element={
+                <ProtectedRoute>
+                  <MentalHealthAssessments />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/counselor-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <CounselorDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/chatbot" 
               element={
                 <ProtectedRoute>
@@ -93,6 +113,22 @@ const AppContent = memo(() => {
             } 
           />
           <Route 
+            path="/assessments" 
+            element={
+              <ProtectedRoute>
+                <MentalHealthAssessments />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/counselor-dashboard" 
+            element={
+              <ProtectedRoute>
+                <CounselorDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/chatbot" 
             element={
               <ProtectedRoute>
@@ -107,9 +143,22 @@ const AppContent = memo(() => {
 });
 
 function App() {
-  const projectId = process.env.REACT_APP_DESCOPE_PROJECT_ID;
+  const descopeConfig = getDescopeConfig();
   
-  if (!projectId) {
+  // Log configuration status and run diagnostics
+  useEffect(() => {
+    logDescopeStatus();
+    
+    // Run comprehensive diagnostics
+    if (typeof window !== 'undefined') {
+      console.log('🚀 Mental Health Support System - Authentication Diagnostics');
+      setTimeout(() => {
+        runDescopeDiagnostics();
+      }, 2000);
+    }
+  }, []);
+  
+  if (!descopeConfig.projectId) {
     return (
       <div className="min-h-screen bg-red-50 flex items-center justify-center">
         <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
@@ -118,7 +167,10 @@ function App() {
             Missing Descope Project ID. Please check your environment configuration.
           </p>
           <p className="text-sm text-gray-500 mt-2">
-            Check the console for detailed configuration status.
+            Environment: {descopeConfig.isProduction ? 'Production' : 'Development'}
+          </p>
+          <p className="text-sm text-gray-500">
+            Domain: {typeof window !== 'undefined' ? window.location.origin : 'Unknown'}
           </p>
         </div>
       </div>
@@ -127,11 +179,15 @@ function App() {
 
   return (
     <AuthProvider 
-      projectId={projectId}
+      projectId={descopeConfig.projectId}
       persistTokens={true}
       autoRefresh={true}
       theme="light"
       locale="en"
+      sessionTokenViaCookie={descopeConfig.sessionConfig.sessionTokenViaCookie}
+      cookieSameSite={descopeConfig.sessionConfig.cookieSameSite}
+      cookieSecure={descopeConfig.sessionConfig.cookieSecure}
+      redirectUrl={descopeConfig.redirectUri}
     >
       <Router>
         <AppContent />

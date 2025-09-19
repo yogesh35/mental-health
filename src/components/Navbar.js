@@ -17,7 +17,7 @@ const Navbar = memo(() => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="text-xl font-bold text-gray-800 flex items-center space-x-2">
-              <span className="text-2xl">🧠�</span>
+              <span className="text-2xl">🧠</span>
               <span>Mental Health Support</span>
             </Link>
           </div>
@@ -40,11 +40,11 @@ const Navbar = memo(() => {
                   <span>Profile</span>
                 </Link>
                 <Link 
-                  to="/mental-health-test" 
+                  to="/assessments" 
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1"
                 >
-                  <span>📊</span>
-                  <span>Assessment</span>
+                  <span>📋</span>
+                  <span>Assessments</span>
                 </Link>
                 <Link 
                   to="/chatbot" 
