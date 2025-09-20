@@ -105,3 +105,12 @@ Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 .vercel
+
+# Documentation and deployment files that are generated
+AUTHENTICATION_FIXED.md
+CLEANUP_SUMMARY.md
+GITHUB_PUSH_SUCCESS.md
+NEW_DEPLOYMENT_SUCCESS.md
+
+# Backend environment files (keep .env.example but not .env)
+backend/.env

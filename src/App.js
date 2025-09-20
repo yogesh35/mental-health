@@ -13,6 +13,7 @@ import MentalHealthAssessments from './pages/MentalHealthAssessments';
 import CounselorDashboard from './pages/CounselorDashboard';
 import ChatBot from './ChatBot';
 import Navbar from './components/Navbar';
+import ErrorBoundary from './components/ErrorBoundary';
 import './styles/enhanced-ui.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -178,21 +179,23 @@ function App() {
   }
 
   return (
-    <AuthProvider 
-      projectId={descopeConfig.projectId}
-      persistTokens={true}
-      autoRefresh={true}
-      theme="light"
-      locale="en"
-      sessionTokenViaCookie={descopeConfig.sessionConfig.sessionTokenViaCookie}
-      cookieSameSite={descopeConfig.sessionConfig.cookieSameSite}
-      cookieSecure={descopeConfig.sessionConfig.cookieSecure}
-      redirectUrl={descopeConfig.redirectUri}
-    >
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider 
+        projectId={descopeConfig.projectId}
+        persistTokens={true}
+        autoRefresh={true}
+        theme="light"
+        locale="en"
+        sessionTokenViaCookie={descopeConfig.sessionConfig.sessionTokenViaCookie}
+        cookieSameSite={descopeConfig.sessionConfig.cookieSameSite}
+        cookieSecure={descopeConfig.sessionConfig.cookieSecure}
+        redirectUrl={descopeConfig.redirectUri}
+      >
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

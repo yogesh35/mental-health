@@ -12,6 +12,20 @@ function ChatBot() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Debug: Check API key on component mount
+  React.useEffect(() => {
+    const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error("❌ REACT_APP_GEMINI_API_KEY is not configured");
+      setMessages([{
+        role: "model",
+        text: "⚠️ Configuration Error: API key is missing. Please contact support."
+      }]);
+    } else {
+      console.log("✅ Gemini API key is configured");
+    }
+  }, []);
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -48,11 +62,25 @@ function ChatBot() {
       setMessages((prev) => [...prev, { role: "model", text: response }]);
     } catch (err) {
       console.error("Chat error:", err);
+      
+      let errorMessage = "I apologize, but I'm experiencing some technical difficulties. Please try again in a moment.";
+      
+      // Provide more specific error messages based on error type
+      if (err.message.includes("API key")) {
+        errorMessage = "⚠️ API Configuration Error: Please contact support about the API key issue.";
+      } else if (err.message.includes("quota")) {
+        errorMessage = "⚠️ Service Temporarily Unavailable: API quota exceeded. Please try again later.";
+      } else if (err.message.includes("network") || err.message.includes("fetch")) {
+        errorMessage = "🌐 Network Error: Please check your internet connection and try again.";
+      } else if (err.message.includes("blocked") || err.message.includes("safety")) {
+        errorMessage = "🛡️ Content Filtered: Please rephrase your message in a different way.";
+      }
+      
       setMessages((prev) => [
         ...prev,
         {
           role: "model",
-          text: "I apologize, but I'm experiencing some technical difficulties. Please try again in a moment."
+          text: errorMessage
         }
       ]);
     } finally {

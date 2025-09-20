@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '@descope/react-sdk';
 import { useNavigate } from 'react-router-dom';
+import { getRecommendations } from '../services/recommendationService';
 
 const User = () => {
   const { user } = useUser();
@@ -411,6 +412,141 @@ const User = () => {
                 </div>
               )}
             </div>
+
+            {/* Personalized Recommendations */}
+            {stressTestHistory.length > 0 && (
+              <div className="bg-white rounded-3xl shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300 p-8 border border-green-100">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mr-4">
+                    <span className="text-white text-2xl">💡</span>
+                  </div>
+                  Personalized Recommendations
+                </h2>
+                
+                {(() => {
+                  const latestAssessment = stressTestHistory[stressTestHistory.length - 1];
+                  const stressLevel = getStressLevel(latestAssessment.score, latestAssessment.maxScore, latestAssessment.type);
+                  const recommendations = getRecommendations(latestAssessment.type, latestAssessment.score, stressLevel.level.toLowerCase());
+                  
+                  // Safety check to ensure recommendations has the proper structure
+                  if (!recommendations || !recommendations.recommendations) {
+                    return (
+                      <div className="text-center py-8">
+                        <div className="text-4xl mb-4">⚠️</div>
+                        <p className="text-gray-600">Unable to load recommendations at this time.</p>
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <div className="space-y-6">
+                      {/* Current Status */}
+                      <div className={`p-4 rounded-2xl border-2 ${stressLevel.bgColor} ${stressLevel.textColor} border-opacity-50`}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium opacity-90">Current Stress Level</p>
+                            <p className="text-xl font-bold">{stressLevel.level}</p>
+                          </div>
+                          <div className="text-3xl">
+                            {stressLevel.level === 'Low' ? '🌱' : 
+                             stressLevel.level === 'Medium' ? '⚠️' : '🚨'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* General Recommendations */}
+                      <div className="bg-blue-50 p-6 rounded-2xl border border-blue-200">
+                        <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center">
+                          <span className="text-xl mr-2">{recommendations.icon}</span>
+                          {recommendations.title}
+                        </h3>
+                        <p className="text-blue-800 mb-4">{recommendations.subtitle}</p>
+                        
+                        {recommendations.recommendations && recommendations.recommendations.map((category, index) => (
+                          <div key={index} className="mb-4">
+                            <h4 className="font-bold text-blue-900 mb-2">{category.category}</h4>
+                            <div className="grid grid-cols-1 gap-2">
+                              {category.items && category.items.map((item, itemIndex) => (
+                                <div key={itemIndex} className="bg-white p-3 rounded-xl border border-blue-100 hover:shadow-md transition-all duration-300">
+                                  <p className="text-sm text-gray-700">{item}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Assessment-Specific Recommendations */}
+                      {recommendations.specificRecommendations && recommendations.specificRecommendations.length > 0 && (
+                        <div className="bg-purple-50 p-6 rounded-2xl border border-purple-200">
+                          <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center">
+                            <span className="text-xl mr-2">�</span>
+                            Assessment-Specific Guidance
+                          </h3>
+                          <div className="space-y-2">
+                            {recommendations.specificRecommendations.map((recommendation, index) => (
+                              <div key={index} className="bg-white p-3 rounded-xl border border-purple-100 hover:shadow-md transition-all duration-300">
+                                <p className="text-sm text-gray-700">{recommendation}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Next Steps */}
+                      {recommendations.nextSteps && recommendations.nextSteps.length > 0 && (
+                        <div className="bg-amber-50 p-6 rounded-2xl border border-amber-200">
+                          <h3 className="text-lg font-bold text-amber-900 mb-4 flex items-center">
+                            <span className="text-xl mr-2">📋</span>
+                            Next Steps & Follow-up
+                          </h3>
+                          <div className="space-y-3">
+                            {recommendations.nextSteps.map((step, index) => (
+                              <div key={index} className="bg-white p-4 rounded-xl border border-amber-100 hover:shadow-md transition-all duration-300">
+                                <div className="flex items-start space-x-3">
+                                  <div className="w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-1">
+                                    {index + 1}
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="text-sm text-gray-700">{step}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Follow-up Timeline */}
+                      {recommendations.followUpTimeline && (
+                        <div className="bg-green-50 p-6 rounded-2xl border border-green-200">
+                          <h3 className="text-lg font-bold text-green-900 mb-4 flex items-center">
+                            <span className="text-xl mr-2">📅</span>
+                            Follow-up Schedule
+                          </h3>
+                          <div className="bg-white p-4 rounded-xl border border-green-100">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                              <div>
+                                <p className="text-sm text-green-600 font-medium">Next Assessment</p>
+                                <p className="font-bold text-green-800">{recommendations.followUpTimeline.nextAssessment}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-green-600 font-medium">Check-in</p>
+                                <p className="font-bold text-green-800">{recommendations.followUpTimeline.checkIn}</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-green-600 font-medium">Professional Follow-up</p>
+                                <p className="font-bold text-green-800">{recommendations.followUpTimeline.professionalFollow}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
           </div>
         </div>
       </div>
