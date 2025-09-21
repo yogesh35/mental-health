@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const path = require('path');
 require('dotenv').config();
 
 // Import database configuration to initialize database
@@ -10,11 +11,14 @@ require('./config/database');
 const resourceRoutes = require('./routes/resources');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the React build
+app.use(express.static(path.join(__dirname, '..', 'build')));
 
 // Resource routes
 app.use('/api', resourceRoutes);
@@ -93,6 +97,11 @@ app.post('/api/seed-database', async (req, res) => {
   }
 });
 
+// Catch-all handler for React Router
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'build', 'index.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`Backend server is running on http://localhost:${PORT}`);
   console.log(`Project ID: ${process.env.DESCOPE_PROJECT_ID}`);
@@ -104,3 +113,6 @@ app.listen(PORT, () => {
     console.error(`Port ${PORT} is already in use. Please choose a different port.`);
   }
 });
+
+// Export the app for Vercel serverless deployment
+module.exports = app;

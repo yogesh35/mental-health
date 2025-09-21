@@ -8,10 +8,12 @@ import './ResourceHub.css';
 
 const ResourceHub = ({ assessmentResults = null, showRecommendations = false }) => {
     const [activeTab, setActiveTab] = useState(showRecommendations ? 'recommendations' : 'all');
+    // eslint-disable-next-line no-unused-vars
     const [featuredResources, setFeaturedResources] = useState([]);
     const [categories, setCategories] = useState([]);
     const [recommendations, setRecommendations] = useState(null);
     const [emergencyResources, setEmergencyResources] = useState(null);
+    // eslint-disable-next-line no-unused-vars
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -21,6 +23,7 @@ const ResourceHub = ({ assessmentResults = null, showRecommendations = false }) 
         if (assessmentResults && showRecommendations) {
             loadRecommendations();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [assessmentResults, showRecommendations]);
 
     const loadInitialData = async () => {

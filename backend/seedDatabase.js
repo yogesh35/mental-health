@@ -48,7 +48,6 @@ async function seedDatabase() {
                 author: 'Dr. Sarah Johnson',
                 duration_minutes: 10,
                 difficulty_level: 'beginner',
-                severity_match: 'mild',
                 is_featured: true
             },
             {
@@ -61,8 +60,7 @@ async function seedDatabase() {
                 thumbnail: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=400',
                 author: 'Mental Health Institute',
                 duration_minutes: 20,
-                difficulty_level: 'intermediate',
-                severity_match: 'moderate'
+                difficulty_level: 'intermediate'
             },
             {
                 title: 'Guided Meditation for Beginners',
@@ -75,7 +73,6 @@ async function seedDatabase() {
                 author: 'Mindfulness Center',
                 duration_minutes: 15,
                 difficulty_level: 'beginner',
-                severity_match: 'all',
                 is_featured: true
             }
         ];
@@ -85,8 +82,8 @@ async function seedDatabase() {
             const [result] = await db.execute(
                 `INSERT INTO resources 
                 (title, description, content, type, category_id, url, thumbnail, author, 
-                 duration_minutes, difficulty_level, severity_match, is_featured) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                 duration_minutes, difficulty_level, is_featured) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     resource.title || '', 
                     resource.description || '', 
@@ -98,7 +95,6 @@ async function seedDatabase() {
                     resource.author || '',
                     resource.duration_minutes || 0, 
                     resource.difficulty_level || 'beginner', 
-                    resource.severity_match || 'all',
                     resource.is_featured || false
                 ]
             );

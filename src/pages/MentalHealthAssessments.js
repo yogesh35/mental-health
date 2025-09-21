@@ -6,6 +6,7 @@ import { getRecommendations } from '../services/recommendationService';
 import { assessmentTimeline } from '../services/assessmentTimelineService';
 
 const MentalHealthAssessments = () => {
+  // eslint-disable-next-line no-unused-vars
   const { sessionToken, user } = useSession();
   const [selectedTest, setSelectedTest] = useState(null);
   const [completedTests, setCompletedTests] = useState({});
