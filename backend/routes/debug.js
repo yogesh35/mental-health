@@ -49,7 +49,7 @@ router.get('/simple-resources', async (req, res) => {
     try {
         console.log('Fetching resources with simple query...');
         
-        const query = 'SELECT * FROM resources WHERE is_active = true LIMIT 10';
+        const query = 'SELECT id, title, type, category_id, is_active, created_at FROM resources LIMIT 10';
         const [rows] = await db.execute(query);
         
         console.log('Simple resources query successful, found:', rows.length);
@@ -57,7 +57,8 @@ router.get('/simple-resources', async (req, res) => {
         res.json({
             success: true,
             data: rows,
-            count: rows.length
+            count: rows.length,
+            message: 'Raw resources data from database'
         });
         
     } catch (error) {
@@ -65,6 +66,41 @@ router.get('/simple-resources', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to fetch resources',
+            error: error.message
+        });
+    }
+});
+
+// Check all resources without is_active filter
+router.get('/all-resources', async (req, res) => {
+    try {
+        console.log('Fetching ALL resources (ignoring is_active)...');
+        
+        const query = `
+            SELECT r.*, 
+                   c.name as category_name,
+                   c.color as category_color
+            FROM resources r 
+            LEFT JOIN categories c ON r.category_id = c.id
+            ORDER BY r.created_at DESC
+            LIMIT 20
+        `;
+        const [rows] = await db.execute(query);
+        
+        console.log('All resources query successful, found:', rows.length);
+        
+        res.json({
+            success: true,
+            data: rows,
+            count: rows.length,
+            message: 'All resources without is_active filter'
+        });
+        
+    } catch (error) {
+        console.error('All resources query error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch all resources',
             error: error.message
         });
     }
@@ -477,8 +513,8 @@ router.get('/seed-real', async (req, res) => {
                 const publishedDate = article.publishedAt ? new Date(article.publishedAt).toISOString().split('T')[0] : null;
                 const [result] = await db.execute(
                     `INSERT INTO resources 
-                    (title, description, content, type, category_id, url, thumbnail, author, source, published_date, is_featured) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    (title, description, content, type, category_id, url, thumbnail, author, source, published_date, is_featured, is_active) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         article.title.substring(0, 255),
                         article.description ? article.description.substring(0, 500) : '',
@@ -490,7 +526,8 @@ router.get('/seed-real', async (req, res) => {
                         article.author ? article.author.substring(0, 255) : 'Unknown',
                         article.source?.name || 'News Source',
                         publishedDate,
-                        Math.random() > 0.7 // Randomly feature some articles
+                        Math.random() > 0.7, // Randomly feature some articles
+                        true // Set is_active to true
                     ]
                 );
                 console.log(`Inserted news article: ${article.title.substring(0, 50)}... (ID: ${result.insertId})`);
@@ -509,8 +546,8 @@ router.get('/seed-real', async (req, res) => {
                 
                 const [result] = await db.execute(
                     `INSERT INTO resources 
-                    (title, description, content, type, category_id, url, thumbnail, author, source, published_date, is_featured) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    (title, description, content, type, category_id, url, thumbnail, author, source, published_date, is_featured, is_active) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         video.snippet.title.substring(0, 255),
                         video.snippet.description ? video.snippet.description.substring(0, 500) : '',
@@ -522,7 +559,8 @@ router.get('/seed-real', async (req, res) => {
                         video.snippet.channelTitle ? video.snippet.channelTitle.substring(0, 255) : 'YouTube Channel',
                         'YouTube',
                         publishedDate,
-                        Math.random() > 0.6 // Randomly feature some videos
+                        Math.random() > 0.6, // Randomly feature some videos
+                        true // Set is_active to true
                     ]
                 );
                 console.log(`Inserted YouTube video: ${video.snippet.title.substring(0, 50)}... (ID: ${result.insertId})`);
@@ -576,8 +614,8 @@ router.get('/seed-real', async (req, res) => {
             try {
                 const [result] = await db.execute(
                     `INSERT INTO resources 
-                    (title, description, content, type, category_id, url, thumbnail, author, source, is_featured) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    (title, description, content, type, category_id, url, thumbnail, author, source, is_featured, is_active) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         resource.title,
                         resource.description,
@@ -588,7 +626,8 @@ router.get('/seed-real', async (req, res) => {
                         resource.thumbnail,
                         resource.author,
                         resource.source,
-                        resource.is_featured
+                        resource.is_featured,
+                        true // Set is_active to true
                     ]
                 );
                 console.log(`Inserted curated resource: ${resource.title} (ID: ${result.insertId})`);
