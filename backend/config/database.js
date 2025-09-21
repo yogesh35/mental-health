@@ -16,7 +16,7 @@ if (process.env.DB_TYPE === 'memory') {
         host: process.env.DB_HOST || 'localhost',
         user: process.env.DB_USER || 'root',
         password: process.env.DB_PASSWORD || '',
-        database: process.env.DB_NAME || 'mental_health_resources',
+        database: process.env.DB_NAME || 'railway',
         port: process.env.DB_PORT || 3306,
         waitForConnections: true,
         connectionLimit: 10,
@@ -48,8 +48,8 @@ const initializeDatabase = async () => {
         const connection = await tempPool.getConnection();
         
         // Create database if it doesn't exist
-        await connection.execute(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'mental_health_resources'}`);
-        console.log(`✅ Database '${process.env.DB_NAME || 'mental_health_resources'}' is ready`);
+        await connection.execute(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'railway'}`);
+        console.log(`✅ Database '${process.env.DB_NAME || 'railway'}' is ready`);
         
         connection.release();
         await tempPool.end();
