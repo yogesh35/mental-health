@@ -74,11 +74,18 @@ router.get('/seed', async (req, res) => {
     try {
         console.log('Starting database seed...');
 
+        // Disable foreign key checks temporarily
+        await db.execute('SET FOREIGN_KEY_CHECKS = 0');
+
         // Drop existing tables if they exist and recreate them
+        await db.execute('DROP TABLE IF EXISTS user_interactions');
         await db.execute('DROP TABLE IF EXISTS resource_tags');
         await db.execute('DROP TABLE IF EXISTS resources');
         await db.execute('DROP TABLE IF EXISTS categories');
         await db.execute('DROP TABLE IF EXISTS tags');
+
+        // Re-enable foreign key checks
+        await db.execute('SET FOREIGN_KEY_CHECKS = 1');
 
         // Create categories table
         await db.execute(`
