@@ -286,33 +286,4 @@ const getFollowUpTimeline = (stressLevel) => {
   return timelines[stressLevel] || timelines.medium;
 };
 
-// Get campus-specific resources
-export const getCampusResources = () => {
-  return {
-    counseling: {
-      name: "Campus Counseling Center",
-      phone: "(555) 123-HELP",
-      hours: "Mon-Fri 8AM-5PM",
-      location: "Student Services Building, Room 200",
-      services: ["Individual Counseling", "Group Therapy", "Crisis Intervention"]
-    },
-    crisis: {
-      name: "24/7 Crisis Support",
-      phone: "988",
-      text: "Text HOME to 741741",
-      online: "Crisis chat available at counseling center website"
-    },
-    wellness: {
-      name: "Student Wellness Center", 
-      location: "Recreation Center, 2nd Floor",
-      services: ["Stress Management Workshops", "Mindfulness Classes", "Peer Support Groups"]
-    },
-    academic: {
-      name: "Academic Support Services",
-      location: "Academic Success Center",
-      services: ["Disability Accommodations", "Study Skills Workshops", "Time Management Counseling"]
-    }
-  };
-};
-
 export default getRecommendations;

@@ -33,41 +33,6 @@ const Dashboard = () => {
     }
   };
 
-  const resources = [
-    {
-      id: 1,
-      title: "Managing Academic Stress",
-      type: "PDF Guide",
-      description: "Comprehensive guide to handling academic pressure and deadlines",
-      icon: "📚",
-      url: "#"
-    },
-    {
-      id: 2,
-      title: "Mindfulness Meditation for Students",
-      type: "Video Series",
-      description: "10-minute daily meditation practices designed for busy students",
-      icon: "🧘‍♀️",
-      url: "#"
-    },
-    {
-      id: 3,
-      title: "Sleep Hygiene for Better Mental Health",
-      type: "Article",
-      description: "Evidence-based tips for improving sleep quality and mental wellbeing",
-      icon: "😴",
-      url: "#"
-    },
-    {
-      id: 4,
-      title: "Building Resilience in College",
-      type: "Webinar",
-      description: "Interactive session on developing coping strategies and resilience",
-      icon: "💪",
-      url: "#"
-    }
-  ];
-
   const getTestResultStatus = (score) => {
     if (!score) return null;
     if (score <= 5) return { status: "Good", color: "green", message: "You're doing well!" };
@@ -265,56 +230,6 @@ const Dashboard = () => {
                 <span className="text-lg">💬</span>
               </button>
             </div>
-          </div>
-        </div>
-
-        {/* Enhanced Resources Section */}
-        <div className="mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4">
-              Mental Health Resources 📚
-            </h2>
-            <p className="text-gray-600 text-lg">Curated resources to support your mental wellness journey</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {resources.map((resource, index) => (
-              <div key={resource.id} className={`group bg-white rounded-2xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 p-8 border-l-4 ${
-                index % 4 === 0 ? 'border-blue-500' :
-                index % 4 === 1 ? 'border-green-500' :
-                index % 4 === 2 ? 'border-purple-500' : 'border-pink-500'
-              }`}>
-                <div className="flex items-start space-x-6">
-                  <div className="text-4xl group-hover:animate-bounce">{resource.icon}</div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                        {resource.title}
-                      </h3>
-                      <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                        index % 4 === 0 ? 'bg-blue-100 text-blue-800' :
-                        index % 4 === 1 ? 'bg-green-100 text-green-800' :
-                        index % 4 === 2 ? 'bg-purple-100 text-purple-800' : 'bg-pink-100 text-pink-800'
-                      }`}>
-                        {resource.type}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 mb-4 leading-relaxed">{resource.description}</p>
-                    <button
-                      onClick={() => alert('📖 Resource would open here. This is a demo showing the enhanced UI!')}
-                      className={`font-semibold text-sm flex items-center space-x-2 ${
-                        index % 4 === 0 ? 'text-blue-600 hover:text-blue-800' :
-                        index % 4 === 1 ? 'text-green-600 hover:text-green-800' :
-                        index % 4 === 2 ? 'text-purple-600 hover:text-purple-800' : 'text-pink-600 hover:text-pink-800'
-                      } transition-colors group-hover:translate-x-2 transition-transform`}
-                    >
-                      <span>Access Resource</span>
-                      <span>→</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
 

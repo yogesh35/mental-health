@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Descope Auth</title>
+</head>
+<body>
+    <h1>Testing Descope Authentication</h1>
+    <div id="debug-info"></div>
+    
+    <script>
+        const debugInfo = document.getElementById('debug-info');
+        
+        // Test environment variables
+        const projectId = 'P320pek6bTCR9UDC2zhl4bIC9LJg';
+        const flowId = 'sign-up-or-in';
+        
+        debugInfo.innerHTML = `
+            <h2>Configuration:</h2>
+            <p>Project ID: ${projectId}</p>
+            <p>Flow ID: ${flowId}</p>
+            <p>Current URL: ${window.location.href}</p>
+            <p>Domain: ${window.location.origin}</p>
+        `;
+        
+        // Test Descope API connectivity
+        fetch(`https://api.descope.com/v1/auth/me`, {
+            headers: {
+                'Authorization': `Bearer ${projectId}`
+            }
+        })
+        .then(response => {
+            debugInfo.innerHTML += `<p>Descope API Response Status: ${response.status}</p>`;
+            return response.text();
+        })
+        .then(data => {
+            debugInfo.innerHTML += `<p>Response: ${data}</p>`;
+        })
+        .catch(error => {
+            debugInfo.innerHTML += `<p>Error: ${error.message}</p>`;
+        });
+    </script>
+</body>
+</html>

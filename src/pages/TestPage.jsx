@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ResourceHub from "../components/resources/ResourceHub";
 
 export default function TestPage() {
   const questions = [
@@ -56,10 +57,16 @@ export default function TestPage() {
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [showResources, setShowResources] = useState(false);
+  const [assessmentResults, setAssessmentResults] = useState(null);
+  const [answers, setAnswers] = useState([]);
 
   const handleAnswer = (value) => {
     const newScore = score + value;
+    const newAnswers = [...answers, { questionIndex: currentQ, value, question: questions[currentQ].question }];
+    
     setScore(newScore);
+    setAnswers(newAnswers);
     
     // Add a slight delay for better UX
     setTimeout(() => {
@@ -67,19 +74,86 @@ export default function TestPage() {
         setCurrentQ(currentQ + 1);
         setSelectedOption(null);
       } else {
+        const results = calculateAssessmentResults(newScore, newAnswers);
+        setAssessmentResults(results);
         setFinished(true);
-        saveTestResult(newScore);
+        saveTestResult(newScore, results);
       }
     }, 500);
   };
 
-  const saveTestResult = (finalScore) => {
+  const calculateAssessmentResults = (finalScore, userAnswers) => {
+    // Calculate severity level
+    const maxScore = questions.length * 3;
+    const scorePercentage = (finalScore / maxScore) * 100;
+    
+    let severityLevel, dominantCondition;
+    
+    if (scorePercentage <= 44) { // 0-44%
+      severityLevel = 'low';
+    } else if (scorePercentage <= 66) { // 45-66%
+      severityLevel = 'mild';
+    } else if (scorePercentage <= 83) { // 67-83%
+      severityLevel = 'moderate';
+    } else { // 84-100%
+      severityLevel = 'severe';
+    }
+
+    // Analyze answers to determine dominant condition
+    // Simple analysis based on question patterns
+    const stressQuestions = [0, 2, 3]; // Stress-related questions
+    const sleepQuestions = [1, 4]; // Sleep/appetite related
+    const socialQuestions = [5]; // Social connection
+    
+    const stressScore = stressQuestions.reduce((sum, qIndex) => {
+      const answer = userAnswers.find(a => a.questionIndex === qIndex);
+      return sum + (answer ? answer.value : 0);
+    }, 0);
+    
+    const sleepScore = sleepQuestions.reduce((sum, qIndex) => {
+      const answer = userAnswers.find(a => a.questionIndex === qIndex);
+      return sum + (answer ? answer.value : 0);
+    }, 0);
+    
+    const socialScore = socialQuestions.reduce((sum, qIndex) => {
+      const answer = userAnswers.find(a => a.questionIndex === qIndex);
+      return sum + (answer ? answer.value : 0);
+    }, 0);
+
+    // Determine dominant condition
+    if (stressScore >= sleepScore && stressScore >= socialScore) {
+      dominantCondition = 'stress';
+    } else if (sleepScore >= socialScore) {
+      dominantCondition = 'depression';
+    } else {
+      dominantCondition = 'anxiety';
+    }
+
+    return {
+      scores: {
+        total: finalScore,
+        maxScore,
+        percentage: scorePercentage,
+        stress: stressScore,
+        sleep: sleepScore,
+        social: socialScore
+      },
+      severityLevel,
+      dominantCondition,
+      responses: userAnswers
+    };
+  };
+
+  const saveTestResult = (finalScore, results) => {
     const testResult = {
       score: finalScore,
       date: new Date().toISOString(),
       maxScore: questions.length * 3,
-      assessmentType: 'stress-test',
-      questions: questions.length
+      assessmentType: 'mental-health-assessment',
+      questions: questions.length,
+      severityLevel: results.severityLevel,
+      dominantCondition: results.dominantCondition,
+      detailedResults: results
     };
     
     // Save to localStorage
@@ -100,6 +174,10 @@ export default function TestPage() {
     setCurrentQ(0);
     setScore(0);
     setFinished(false);
+    setShowResources(false);
+    setAssessmentResults(null);
+    setAnswers([]);
+    setSelectedOption(null);
   };
 
   return (
@@ -256,46 +334,28 @@ export default function TestPage() {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <button
+                onClick={() => setShowResources(true)}
+                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-4 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2"
+              >
+                <span>📚</span>
+                <span>Get Personalized Resources</span>
+              </button>
+              
+              <button
                 onClick={resetTest}
                 className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-4 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2"
               >
                 <span>🔄</span>
-                <span>Take Assessment Again</span>
+                <span>Retake Assessment</span>
               </button>
               
               <button
                 onClick={() => window.location.href = '/chatbot'}
-                className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-4 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2"
+                className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold py-4 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2"
               >
                 <span>🤖</span>
-                <span>Talk to AI Assistant</span>
+                <span>AI Assistant</span>
               </button>
-            </div>
-
-            {/* Resources Section */}
-            <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-6 border border-gray-200">
-              <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                <span className="text-2xl mr-2">📚</span>
-                Helpful Resources
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-lg p-4 border border-gray-100">
-                  <h5 className="font-semibold text-gray-800 mb-2">🧘‍♀️ Mindfulness & Meditation</h5>
-                  <p className="text-sm text-gray-600">Practice daily mindfulness to reduce stress and improve focus</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 border border-gray-100">
-                  <h5 className="font-semibold text-gray-800 mb-2">💪 Physical Activity</h5>
-                  <p className="text-sm text-gray-600">Regular exercise boosts mood and reduces anxiety</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 border border-gray-100">
-                  <h5 className="font-semibold text-gray-800 mb-2">👥 Social Support</h5>
-                  <p className="text-sm text-gray-600">Connect with friends, family, or support groups</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 border border-gray-100">
-                  <h5 className="font-semibold text-gray-800 mb-2">😴 Sleep Hygiene</h5>
-                  <p className="text-sm text-gray-600">Maintain consistent sleep schedule for better mental health</p>
-                </div>
-              </div>
             </div>
 
             {/* Disclaimer */}
@@ -312,6 +372,16 @@ export default function TestPage() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+        
+        {/* Resource Hub Section - Show after assessment completion */}
+        {showResources && assessmentResults && (
+          <div className="mt-8">
+            <ResourceHub 
+              assessmentResults={assessmentResults}
+              showRecommendations={true}
+            />
           </div>
         )}
       </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from '@descope/react-sdk';
 import AssessmentForm from '../components/AssessmentForm';
 import { CounselorAlertService } from '../services/counselorAlertService';
-import { getRecommendations, getCampusResources } from '../services/recommendationService';
+import { getRecommendations } from '../services/recommendationService';
 import { assessmentTimeline } from '../services/assessmentTimelineService';
 
 const MentalHealthAssessments = () => {

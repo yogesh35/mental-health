@@ -9,6 +9,15 @@ const Auth = () => {
 
   // Add timeout to prevent infinite loading
   useEffect(() => {
+    // Log configuration for debugging
+    console.log('=== Descope Configuration Debug ===');
+    console.log('Project ID:', process.env.REACT_APP_DESCOPE_PROJECT_ID);
+    console.log('Flow ID:', process.env.REACT_APP_DESCOPE_FLOW_ID || 'sign-up-or-in');
+    console.log('Management Key:', process.env.REACT_APP_DESCOPE_MANAGEMENT_KEY ? 'Present' : 'Missing');
+    console.log('Current URL:', window.location.href);
+    console.log('Current Origin:', window.location.origin);
+    console.log('===================================');
+    
     const timeout = setTimeout(() => {
       if (isLoading) {
         setError('Authentication is taking too long to load. Please refresh the page.');
@@ -21,19 +30,41 @@ const Auth = () => {
 
   const onSuccess = (e) => {
     console.log('Authentication successful:', e);
+    console.log('Event details:', JSON.stringify(e, null, 2));
     setIsLoading(false);
     navigate('/dashboard');
   };
 
   const onError = (err) => {
     console.error('Authentication error:', err);
-    setError(err.message || 'Authentication failed. Please try again.');
+    console.error('Error details:', JSON.stringify(err, null, 2));
+    console.error('Error message:', err.message);
+    console.error('Error type:', err.name);
+    console.error('Error code:', err.code);
+    
+    let errorMessage = 'Authentication failed. Please try again.';
+    
+    // Provide more specific error messages
+    if (err.message && err.message.includes('domain')) {
+      errorMessage = 'Domain not allowed. Please contact support.';
+    } else if (err.message && err.message.includes('flow')) {
+      errorMessage = 'Authentication flow not found. Please contact support.';
+    } else if (err.message && err.message.includes('project')) {
+      errorMessage = 'Project configuration error. Please contact support.';
+    } else if (err.message) {
+      errorMessage = `Authentication error: ${err.message}`;
+    }
+    
+    setError(errorMessage);
     setIsLoading(false);
   };
 
   const onReady = () => {
-    setIsLoading(false);
     console.log('Descope flow is ready');
+    console.log('Project ID:', process.env.REACT_APP_DESCOPE_PROJECT_ID);
+    console.log('Flow ID:', process.env.REACT_APP_DESCOPE_FLOW_ID || 'sign-up-or-in');
+    console.log('Current domain:', window.location.origin);
+    setIsLoading(false);
   };
 
   return (
@@ -72,9 +103,23 @@ const Auth = () => {
         <div className="max-w-md mx-auto w-full px-4">
           <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-4 md:p-8 border border-white/20 shadow-2xl">
             {error && (
-              <div className="mb-6 p-4 text-sm text-red-200 bg-red-500/20 backdrop-blur-sm rounded-2xl border border-red-400/30 flex items-center space-x-3">
-                <span className="text-xl">⚠️</span>
-                <span>{error}</span>
+              <div className="mb-6 p-4 text-sm text-red-200 bg-red-500/20 backdrop-blur-sm rounded-2xl border border-red-400/30">
+                <div className="flex items-start space-x-3">
+                  <span className="text-xl">⚠️</span>
+                  <div>
+                    <div className="font-semibold mb-1">Authentication Error</div>
+                    <div>{error}</div>
+                    <div className="mt-2 text-xs text-red-300">
+                      <p>Common solutions:</p>
+                      <ul className="list-disc list-inside mt-1 space-y-1">
+                        <li>Refresh the page and try again</li>
+                        <li>Check your internet connection</li>
+                        <li>Clear browser cache and cookies</li>
+                        <li>Try a different browser</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
             

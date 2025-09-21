@@ -47,6 +47,13 @@ const Navbar = memo(() => {
                   <span>Assessments</span>
                 </Link>
                 <Link 
+                  to="/resources" 
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1"
+                >
+                  <span>📚</span>
+                  <span>Resources</span>
+                </Link>
+                <Link 
                   to="/chatbot" 
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1"
                 >

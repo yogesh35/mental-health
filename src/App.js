@@ -5,12 +5,15 @@ import { getDescopeConfig, logDescopeStatus } from './config/descopeConfig';
 import { runDescopeDiagnostics } from './utils/descopeDiagnostics';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
+import TemporaryAuth from './pages/TemporaryAuth';
 import RoleSelection from './pages/RoleSelection';
 import Dashboard from './pages/Dashboard';
 import User from './pages/User';
 import TestPage from './pages/TestPage';
 import MentalHealthAssessments from './pages/MentalHealthAssessments';
+import ResourcesPage from './pages/ResourcesPage';
 import CounselorDashboard from './pages/CounselorDashboard';
+import TestResources from './components/TestResources';
 import ChatBot from './ChatBot';
 import Navbar from './components/Navbar';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -33,6 +36,7 @@ const AppContent = memo(() => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth-temp" element={<TemporaryAuth />} />
             <Route path="/role-selection" element={<RoleSelection />} />
             <Route 
               path="/dashboard" 
@@ -63,6 +67,14 @@ const AppContent = memo(() => {
               element={
                 <ProtectedRoute>
                   <MentalHealthAssessments />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/resources" 
+              element={
+                <ProtectedRoute>
+                  <ResourcesPage />
                 </ProtectedRoute>
               } 
             />
@@ -120,6 +132,14 @@ const AppContent = memo(() => {
                 <MentalHealthAssessments />
               </ProtectedRoute>
             } 
+          />
+          <Route 
+            path="/resources" 
+            element={<ResourcesPage />}
+          />
+          <Route 
+            path="/test-resources" 
+            element={<TestResources />}
           />
           <Route 
             path="/counselor-dashboard" 

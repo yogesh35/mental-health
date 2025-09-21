@@ -114,3 +114,4 @@ NEW_DEPLOYMENT_SUCCESS.md
 
 # Backend environment files (keep .env.example but not .env)
 backend/.env
+
