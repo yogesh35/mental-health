@@ -2,7 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
-require('dotenv').config();
+
+// Load environment variables
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // Import database configuration to initialize database
 require('./config/database');
