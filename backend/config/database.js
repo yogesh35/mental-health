@@ -22,9 +22,7 @@ if (process.env.DB_TYPE === 'memory') {
         connectionLimit: 10,
         queueLimit: 0,
         timezone: '+00:00',
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-        acquireTimeout: 60000,
-        timeout: 60000
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
     });
 }
 
@@ -46,9 +44,7 @@ const initializeDatabase = async () => {
             waitForConnections: true,
             connectionLimit: 10,
             queueLimit: 0,
-            ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-            acquireTimeout: 60000,
-            timeout: 60000
+            ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
         });
 
         const connection = await tempPool.getConnection();

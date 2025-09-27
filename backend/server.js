@@ -13,14 +13,23 @@ require('./config/database');
 const resourceRoutes = require('./routes/resources');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
+
+console.log('🚀 Starting server...');
+console.log('Environment:', process.env.NODE_ENV || 'development');
+console.log('Port:', PORT);
+console.log('DB Host:', process.env.DB_HOST || 'Not configured');
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Serve static files from the React build
-app.use(express.static(path.join(__dirname, '..', 'build')));
+const buildPath = path.join(__dirname, '..', 'build');
+console.log('Build path:', buildPath);
+console.log('Build folder exists:', require('fs').existsSync(buildPath));
+
+app.use(express.static(buildPath));
 
 // Resource routes
 app.use('/api', resourceRoutes);
@@ -101,7 +110,15 @@ app.post('/api/seed-database', async (req, res) => {
 
 // Catch-all handler for React Router
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'build', 'index.html'));
+  const indexPath = path.join(__dirname, '..', 'build', 'index.html');
+  console.log('Serving index.html from:', indexPath);
+  console.log('Index.html exists:', require('fs').existsSync(indexPath));
+  
+  if (require('fs').existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).json({ error: 'Frontend build not found' });
+  }
 });
 
 app.listen(PORT, () => {

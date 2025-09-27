@@ -22,6 +22,10 @@
     "spotify-web-api-node": "^5.0.2",
     "youtube-api-search": "^0.0.5"
   },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "devDependencies": {
     "nodemon": "^3.0.1"
   }
